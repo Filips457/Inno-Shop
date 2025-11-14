@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Bcpg.OpenPgp;
-using UserApplication.DTOs;
 using UserApplication.Interfaces;
 using UserDomain.Models;
 using UserInfrastructure.DataSources;
@@ -8,11 +6,11 @@ using UserInfrastructure.Entities;
 
 namespace UserInfrastructure.Repositories;
 
-public class MySqlRepository : IUserRepository
+public class UserRepositoryMySql : IUserRepository
 {
     private readonly UserContextMySql userContext;
 
-    public MySqlRepository(UserContextMySql userContextMySql)
+    public UserRepositoryMySql(UserContextMySql userContextMySql)
     {
         userContext = userContextMySql;
     }

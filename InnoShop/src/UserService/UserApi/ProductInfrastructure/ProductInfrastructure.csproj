@@ -15,4 +15,8 @@
     <PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ProductService\ProductApplication\ProductApplication.csproj" />
+  </ItemGroup>
+
 </Project>

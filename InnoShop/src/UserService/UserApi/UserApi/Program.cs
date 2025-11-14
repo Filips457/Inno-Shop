@@ -22,7 +22,7 @@ namespace UserApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddScoped<IUserRepository, MySqlRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepositoryMySql>();
             builder.Services.AddScoped<IUserService, UserService>();
 
 
