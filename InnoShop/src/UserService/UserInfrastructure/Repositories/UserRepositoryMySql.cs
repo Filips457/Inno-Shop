@@ -27,6 +27,12 @@ public class UserRepositoryMySql : IUserRepository
         return user != null ? ConvertUser(user) : null;
     }
 
+    public async Task<User?> GetUserByEmail(string email)
+    {
+        var user = await userContext.Users.SingleOrDefaultAsync(u => u.Email == email);
+        return user != null ? ConvertUser(user) : null;
+    }
+
     public async Task<User> CreateUser(User user)
     {
         UserEntity userToInsert = ConvertUser(user);
@@ -81,6 +87,7 @@ public class UserRepositoryMySql : IUserRepository
             Name = userEntity.Name,
             Email = userEntity.Email,
             UserRole = userEntity.UserRole,
+            HashPassword = userEntity.HashPassword,
             IsActive = userEntity.IsActive,
         };
     }
@@ -93,6 +100,7 @@ public class UserRepositoryMySql : IUserRepository
             Name = user.Name,
             Email = user.Email,
             UserRole = user.UserRole,
+            HashPassword = user.HashPassword,
             IsActive = user.IsActive,
         };
     }

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using UserDomain.Models;
+﻿using UserDomain.Models;
 
 namespace UserInfrastructure.Entities;
 
@@ -12,6 +11,8 @@ public class UserEntity
     public string Email { get; set; }
 
     public Role UserRole { get; set; }
+
+    public string HashPassword { get; set; }
 
     public bool IsActive { get; set; }
 }

@@ -1,9 +1,12 @@
-
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using UserApplication.DTOs;
 using UserApplication.Interfaces;
 using UserApplication.Services;
 using UserInfrastructure.DataSources;
 using UserInfrastructure.Repositories;
+using UserInfrastructure.Security;
 
 namespace UserApi
 {
@@ -24,6 +27,36 @@ namespace UserApi
 
             builder.Services.AddScoped<IUserRepository, UserRepositoryMySql>();
             builder.Services.AddScoped<IUserService, UserService>();
+
+            builder.Services.AddScoped<IPasswordHasher, PasswordHasherBCrypt>();
+
+            var jwtSection = builder.Configuration.GetSection("JwtSettings");
+            var jwtSettings = jwtSection.Get<JwtSettings>();
+
+            if (jwtSettings == null)
+                throw new InvalidOperationException("Строка jwt не найдена");
+
+            builder.Services.AddAuthentication("Bearer")
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings.Issuer,
+                        ValidAudience = jwtSettings.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtSettings.Key))
+                    };
+                });
+
+            builder.Services.AddAuthorization();
+
+
+            builder.Services.Configure<JwtSettings>(jwtSection);
+            builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
 
             var connStr = builder.Configuration.GetConnectionString("MySqlConnection");
@@ -47,6 +80,7 @@ namespace UserApi
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

@@ -6,5 +6,6 @@ public class User
     public string Name { get; set; }
     public string Email { get; set; }
     public Role UserRole { get; set; }
+    public string HashPassword { get; set; }
     public bool IsActive { get; set; }
 }

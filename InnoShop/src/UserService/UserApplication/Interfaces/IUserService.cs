@@ -8,11 +8,13 @@ public interface IUserService
 
     Task<List<UserDTO>> GetActiveUsers();
 
+    Task<UserDTO> ValidateCredentials(string email, string password);
+
     Task<UserDTO> GetUserById(int id);
 
-    Task<UserDTO> CreateUser(UserDTO userDTO);
+    Task<UserDTO> CreateUser(UserRequestDTO userRequestDTO);
 
-    Task UpdateUser(int id, UserDTO userDTO);
+    Task UpdateUser(int id, UserRequestDTO userRequestDTO);
 
     Task SetUserActive(int id, bool active);
 

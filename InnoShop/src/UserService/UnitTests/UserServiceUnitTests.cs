@@ -11,12 +11,14 @@ namespace UnitTests;
 public class UserServiceUnitTests
 {
     private readonly Mock<IUserRepository> mockRep;
+    private readonly Mock<IPasswordHasher> mockPass;
     private readonly UserService service;
 
     public UserServiceUnitTests()
     {
         mockRep = new Mock<IUserRepository>();
-        service = new UserService(mockRep.Object);
+        mockPass = new Mock<IPasswordHasher>();
+        service = new UserService(mockRep.Object, mockPass.Object);
     }
 
     [Fact]

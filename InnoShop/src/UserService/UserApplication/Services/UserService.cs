@@ -8,11 +8,14 @@ namespace UserApplication.Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository repository;
+    private readonly IPasswordHasher passwordHasher;
+
     private readonly Regex emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, IPasswordHasher hasher)
     {
         repository = userRepository;
+        passwordHasher = hasher;
     }
 
     public async Task<List<UserDTO>> GetAllUsers()
@@ -37,30 +40,48 @@ public class UserService : IUserService
         return ConvertUser(user);
     }
 
-    public async Task<UserDTO> CreateUser(UserDTO userDTO)
+    public async Task<UserDTO> ValidateCredentials(string email, string password)
     {
-        if (emailRegex.IsMatch(userDTO.Email) == false)
-            throw new Exception("Incorrect email!");
+        var user = await repository.GetUserByEmail(email);
 
-        userDTO.Id = 0;
-        var user = await repository.CreateUser(ConvertUser(userDTO));
+        if (user == null)
+            throw new Exception($"User with email {email} was not found.");
+
+        if (user.IsActive == false)
+            throw new Exception($"User with email {email} is inactive.");
+
+        if (passwordHasher.Verify(user.HashPassword, password) == false)
+            throw new Exception($"Incorrect password!");
 
         return ConvertUser(user);
     }
 
-    public async Task UpdateUser(int id, UserDTO userDTO)
+    public async Task<UserDTO> CreateUser(UserRequestDTO userRequestDTO)
     {
-        if (emailRegex.IsMatch(userDTO.Email) == false)
+        if (emailRegex.IsMatch(userRequestDTO.Email) == false)
+            throw new Exception("Incorrect email!");
+
+        var user = ConvertUser(userRequestDTO);
+        user.Id = 0;
+        await repository.CreateUser(user);
+
+        return ConvertUser(user);
+    }
+
+    public async Task UpdateUser(int id, UserRequestDTO userRequestDTO)
+    {
+        if (emailRegex.IsMatch(userRequestDTO.Email) == false)
             throw new Exception("Incorrect email!");
 
         var user = await repository.GetUserById(id);
         if (user == null)
             throw new Exception($"User with id {id} was not found.");
 
-        user.Name = userDTO.Name;
-        user.Email = userDTO.Email;
-        user.UserRole = userDTO.UserRole;
-        user.IsActive = userDTO.IsActive;
+        user.Name = userRequestDTO.Name;
+        user.Email = userRequestDTO.Email;
+        user.UserRole = userRequestDTO.UserRole;
+        user.HashPassword = passwordHasher.Hash(userRequestDTO.Password);
+        user.IsActive = userRequestDTO.IsActive;
 
         await repository.UpdateUser(user);
     }
@@ -93,6 +114,18 @@ public class UserService : IUserService
             Email = userDTO.Email,
             UserRole = userDTO.UserRole,
             IsActive = userDTO.IsActive,
+        };
+    }
+
+    private User ConvertUser(UserRequestDTO userRequestDTO)
+    {
+        return new User
+        {
+            Name = userRequestDTO.Name,
+            Email = userRequestDTO.Email,
+            UserRole = userRequestDTO.UserRole,
+            HashPassword = passwordHasher.Hash(userRequestDTO.Password),
+            IsActive = userRequestDTO.IsActive,
         };
     }
 

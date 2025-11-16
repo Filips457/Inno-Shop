@@ -4,6 +4,8 @@ using UserApplication.Interfaces;
 
 namespace UserApi.Controllers;
 
+//TODO: убрать много try/catch
+
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
@@ -55,11 +57,11 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] UserDTO userDTO)
+    public async Task<IActionResult> CreateUser([FromBody] UserRequestDTO userRequestDTO)
     {
         try
         {
-            var user = await service.CreateUser(userDTO);
+            var user = await service.CreateUser(userRequestDTO);
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
         catch (Exception ex)
@@ -69,11 +71,11 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateUser([FromQuery] int id, [FromBody] UserDTO userDTO)
+    public async Task<IActionResult> UpdateUser([FromQuery] int id, [FromBody] UserRequestDTO userRequestDTO)
     {
         try
         {
-            await service.UpdateUser(id, userDTO);
+            await service.UpdateUser(id, userRequestDTO);
             return NoContent();
         }
         catch (Exception ex) when (ex.Message.Contains("not found"))
