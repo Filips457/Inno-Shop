@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using ProductApi.Exceptions;
 using ProductApplication.Interfaces;
 using ProductApplication.Services;
 using ProductInfrastructure.DataSources;
@@ -20,6 +21,15 @@ namespace ProductApi
             builder.Services.AddOpenApi();
 
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddProblemDetails(configure =>
+            {
+                configure.CustomizeProblemDetails = context =>
+                {
+                    context.ProblemDetails.Extensions.TryAdd("requstId", context.HttpContext.TraceIdentifier);
+                };
+            });
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IProductService, ProductService>();
@@ -45,6 +55,9 @@ namespace ProductApi
             }
 
             app.UseHttpsRedirection();
+
+            app.UseExceptionHandler();
+            //app.UseMiddleware<GlobalExceptionHandler>();
 
             app.UseAuthorization();
 

@@ -2,10 +2,8 @@
 
 namespace ProductApplication.DTOs;
 
-public class ProductDTO
+public class ProductRequestDTO
 {
-    public int Id { get; set; }
-
     [Required]
     public string Name { get; set; }
 
@@ -13,8 +11,6 @@ public class ProductDTO
     public string Description { get; set; }
 
     public decimal Price { get; set; }
-    
-    public DateTime CreationTime { get; set; }
 
 
     public int UserId { get; set; }

@@ -15,5 +15,6 @@ public class ProductContextMySql : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ProductEntity>().HasKey(p => p.Id);
+        modelBuilder.Entity<ProductEntity>().HasIndex(p => p.UserId);
     }
 }

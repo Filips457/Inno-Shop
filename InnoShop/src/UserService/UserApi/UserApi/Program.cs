@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using UserApi.Exceptions;
 using UserApplication.DTOs;
 using UserApplication.Interfaces;
 using UserApplication.Services;
@@ -25,7 +26,16 @@ namespace UserApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddScoped<IUserRepository, UserRepositoryMySql>();
+            builder.Services.AddProblemDetails(configure =>
+            {
+                configure.CustomizeProblemDetails = context =>
+                {
+                    context.ProblemDetails.Extensions.TryAdd("requstId", context.HttpContext.TraceIdentifier);
+                };
+            });
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddScoped<IPasswordHasher, PasswordHasherBCrypt>();
@@ -79,6 +89,9 @@ namespace UserApi
             }
 
             app.UseHttpsRedirection();
+
+            app.UseExceptionHandler();
+            //app.UseMiddleware<GlobalExceptionHandler>();
 
             app.UseAuthentication();
             app.UseAuthorization();

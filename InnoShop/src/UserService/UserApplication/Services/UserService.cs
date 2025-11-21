@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Net.Http;
+using System.Text.RegularExpressions;
+using UserApi.Exceptions;
 using UserApplication.DTOs;
 using UserApplication.Interfaces;
 using UserDomain.Models;
@@ -9,13 +11,15 @@ public class UserService : IUserService
 {
     private readonly IUserRepository repository;
     private readonly IPasswordHasher passwordHasher;
+    private readonly HttpClient httpClient;
 
-    private readonly Regex emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+    private readonly Regex emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
-    public UserService(IUserRepository userRepository, IPasswordHasher hasher)
+    public UserService(IUserRepository userRepository, IPasswordHasher hasher, IHttpClientFactory httpClientFactory)
     {
         repository = userRepository;
         passwordHasher = hasher;
+        httpClient = httpClientFactory.CreateClient("UserServiceClient");
     }
 
     public async Task<List<UserDTO>> GetAllUsers()
@@ -35,7 +39,7 @@ public class UserService : IUserService
         var user = await repository.GetUserById(id);
 
         if (user == null)
-            throw new Exception($"User with id {id} was not found.");
+            throw new NotFoundException($"User with id {id} was not found.");
 
         return ConvertUser(user);
     }
@@ -45,13 +49,13 @@ public class UserService : IUserService
         var user = await repository.GetUserByEmail(email);
 
         if (user == null)
-            throw new Exception($"User with email {email} was not found.");
+            throw new NotFoundException($"User with email {email} was not found.");
 
         if (user.IsActive == false)
-            throw new Exception($"User with email {email} is inactive.");
+            throw new ArgumentException($"User with email {email} is inactive.");
 
         if (passwordHasher.Verify(user.HashPassword, password) == false)
-            throw new Exception($"Incorrect password!");
+            throw new ArgumentException($"Incorrect password!");
 
         return ConvertUser(user);
     }
@@ -59,7 +63,7 @@ public class UserService : IUserService
     public async Task<UserDTO> CreateUser(UserRequestDTO userRequestDTO)
     {
         if (emailRegex.IsMatch(userRequestDTO.Email) == false)
-            throw new Exception("Incorrect email!");
+            throw new ArgumentException("Incorrect email!");
 
         var user = ConvertUser(userRequestDTO);
         user.Id = 0;
@@ -71,11 +75,11 @@ public class UserService : IUserService
     public async Task UpdateUser(int id, UserRequestDTO userRequestDTO)
     {
         if (emailRegex.IsMatch(userRequestDTO.Email) == false)
-            throw new Exception("Incorrect email!");
+            throw new ArgumentException("Incorrect email!");
 
         var user = await repository.GetUserById(id);
         if (user == null)
-            throw new Exception($"User with id {id} was not found.");
+            throw new NotFoundException($"User with id {id} was not found.");
 
         user.Name = userRequestDTO.Name;
         user.Email = userRequestDTO.Email;
@@ -90,7 +94,9 @@ public class UserService : IUserService
     {
         var user = await repository.GetUserById(id);
         if (user == null)
-            throw new Exception($"User with id {id} was not found.");
+            throw new NotFoundException($"User with id {id} was not found.");
+
+        var res = await httpClient.GetAsync($"set-active/{id}/{active}");
 
         await repository.SetUserActive(id, active);
     }
@@ -99,23 +105,11 @@ public class UserService : IUserService
     {
         var user = await repository.GetUserById(id);
         if (user == null)
-            throw new Exception($"User with id {id} was not found.");
+            throw new NotFoundException($"User with id {id} was not found.");
 
         await repository.DeleteUser(id);
     }
 
-
-    private User ConvertUser(UserDTO userDTO)
-    {
-        return new User
-        {
-            Id = userDTO.Id,
-            Name = userDTO.Name,
-            Email = userDTO.Email,
-            UserRole = userDTO.UserRole,
-            IsActive = userDTO.IsActive,
-        };
-    }
 
     private User ConvertUser(UserRequestDTO userRequestDTO)
     {

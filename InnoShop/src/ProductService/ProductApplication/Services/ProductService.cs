@@ -1,4 +1,5 @@
 ﻿using ProductApplication.DTOs;
+using ProductApplication.Exceptions;
 using ProductApplication.Interfaces;
 using ProductDomain.Model;
 
@@ -21,33 +22,60 @@ public class ProductService : IProductService
 
     public async Task<ProductDTO> GetProductById(int id)
     {
-        throw new NotImplementedException();
+        var product = await repository.GetProductById(id);
+
+        if (product == null)
+            throw new NotFoundException($"Product with id {id} was not found.");
+
+        return ConvertProduct(product);
     }
 
-    public async Task<ProductDTO> CreateProduct(ProductDTO productDTO)
+    public async Task<ProductDTO> CreateProduct(ProductRequestDTO productDTO)
     {
-        throw new NotImplementedException();
+        var product = ConvertProduct(productDTO);
+        product.Id = 0;
+        product = await repository.CreateProduct(product);
+
+        return ConvertProduct(product);
     }
 
-    public async Task UpdateProduct(int id, ProductDTO productDTO)
+    public async Task UpdateProduct(int id, ProductRequestDTO productDTO)
     {
-        throw new NotImplementedException();
+        var product = await repository.GetProductById(id);
+        if (product == null)
+            throw new NotFoundException($"Product with id {id} was not found.");
+
+        product.Name = productDTO.Name;
+        product.Description = productDTO.Description;
+        product.Price = productDTO.Price;
+        product.UserId = productDTO.UserId;
+
+        await repository.UpdateProduct(product);
+    }
+
+    public async Task SetProductsActive(int userId, bool isActive)
+    {
+        await repository.SetProductsActive(userId, isActive);
     }
 
     public async Task DeleteProduct(int id)
     {
-        throw new NotImplementedException();
+        var product = await repository.GetProductById(id);
+        if (product == null)
+            throw new NotFoundException($"Product with id {id} was not found.");
+
+        await repository.DeleteProduct(id);
     }
 
-    private Product ConvertProduct(ProductDTO productDTO)
+
+    private Product ConvertProduct(ProductRequestDTO productDTO)
     {
         return new Product
         {
-            Id = productDTO.Id,
             Name = productDTO.Name,
             Description = productDTO.Description,
             Price = productDTO.Price,
-            CreationTime = productDTO.CreationTime,
+            CreationTime = DateTime.UtcNow,
             UserId = productDTO.UserId,
         };
     }

@@ -15,5 +15,6 @@ public class UserContextMySql : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserEntity>().HasKey(u =>  u.Id);
+        modelBuilder.Entity<UserEntity>().HasIndex(p => p.Email).IsUnique();
     }
 }

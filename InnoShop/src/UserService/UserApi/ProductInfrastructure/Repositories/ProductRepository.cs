@@ -21,25 +21,58 @@ public class ProductRepository : IProductRepository
         return products.Select(p => ConvertProduct(p)).ToList();
     }
 
-    public async Task<Product> GetProductById(int id)
+    public async Task<Product?> GetProductById(int id)
     {
-        throw new NotImplementedException();
+        var product = await productContext.Products.FindAsync(id);
+        return product != null ? ConvertProduct(product) : null;
     }
 
     public async Task<Product> CreateProduct(Product product)
     {
-        throw new NotImplementedException();
+        ProductEntity productToInsert = ConvertProduct(product);
+
+        await productContext.AddAsync(productToInsert);
+        await productContext.SaveChangesAsync();
+
+        return ConvertProduct(productToInsert);
     }
 
     public async Task UpdateProduct(Product product)
     {
-        throw new NotImplementedException();
+        var productToUpdate = await productContext.Products.FindAsync(product.Id);
+        if (productToUpdate == null)
+            return;
+
+        productToUpdate.Name = product.Name;
+        productToUpdate.Description = product.Description;
+        productToUpdate.Price = product.Price;
+        productToUpdate.CreationTime = product.CreationTime;
+
+        productToUpdate.UserId = product.UserId;
+
+        await productContext.SaveChangesAsync();
+    }
+
+    public async Task SetProductsActive(int userId, bool isActive)
+    {
+        var products = productContext.Products.Where(p => p.UserId == userId);
+
+        foreach (var product in products)
+            product.IsActive = isActive;
+
+        await productContext.SaveChangesAsync();
     }
 
     public async Task DeleteProduct(int id)
     {
-        throw new NotImplementedException();
+        var productToDelete = await productContext.Products.FindAsync(id);
+        if (productToDelete == null)
+            return;
+
+        productContext.Products.Remove(productToDelete);
+        await productContext.SaveChangesAsync();
     }
+
 
     private Product ConvertProduct(ProductEntity productEntity)
     {

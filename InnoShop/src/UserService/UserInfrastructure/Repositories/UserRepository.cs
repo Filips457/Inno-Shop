@@ -6,11 +6,11 @@ using UserInfrastructure.Entities;
 
 namespace UserInfrastructure.Repositories;
 
-public class UserRepositoryMySql : IUserRepository
+public class UserRepository : IUserRepository
 {
     private readonly UserContextMySql userContext;
 
-    public UserRepositoryMySql(UserContextMySql userContextMySql)
+    public UserRepository(UserContextMySql userContextMySql)
     {
         userContext = userContextMySql;
     }
@@ -91,6 +91,7 @@ public class UserRepositoryMySql : IUserRepository
             IsActive = userEntity.IsActive,
         };
     }
+
 
     private UserEntity ConvertUser(User user)
     {

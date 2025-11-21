@@ -8,9 +8,11 @@ public interface IProductService
 
     Task<ProductDTO> GetProductById(int id);
 
-    Task<ProductDTO> CreateProduct(ProductDTO productDTO);
+    Task<ProductDTO> CreateProduct(ProductRequestDTO productDTO);
 
-    Task UpdateProduct(int id, ProductDTO productDTO);
+    Task UpdateProduct(int id, ProductRequestDTO productDTO);
+
+    Task SetProductsActive(int userId, bool isActive);
 
     Task DeleteProduct(int id);
 }
