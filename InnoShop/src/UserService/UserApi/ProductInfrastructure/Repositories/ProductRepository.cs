@@ -83,6 +83,7 @@ public class ProductRepository : IProductRepository
             Description = productEntity.Description,
             Price = productEntity.Price,
             CreationTime = productEntity.CreationTime,
+            IsActive = productEntity.IsActive,
             UserId = productEntity.UserId,
         };
     }
@@ -96,6 +97,7 @@ public class ProductRepository : IProductRepository
             Description = product.Description,
             Price = product.Price,
             CreationTime = product.CreationTime,
+            IsActive = product.IsActive,
             UserId = product.UserId,
         };
     }

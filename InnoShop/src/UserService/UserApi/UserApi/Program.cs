@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using UserApi.Exceptions;
 using UserApplication.DTOs;
@@ -24,7 +25,35 @@ namespace UserApi
             builder.Services.AddOpenApi();
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "User API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "¬ведите токен в формате: Bearer {токен}"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
 
             builder.Services.AddProblemDetails(configure =>
             {
@@ -35,6 +64,10 @@ namespace UserApi
             });
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+            builder.Services.AddHttpClient("UserServiceClient", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7176/api/Product/");
+            });
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
 
@@ -91,7 +124,6 @@ namespace UserApi
             app.UseHttpsRedirection();
 
             app.UseExceptionHandler();
-            //app.UseMiddleware<GlobalExceptionHandler>();
 
             app.UseAuthentication();
             app.UseAuthorization();

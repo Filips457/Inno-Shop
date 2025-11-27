@@ -22,37 +22,40 @@ public class ProductController : ControllerBase
         return await service.GetAllProducts();
     }
 
-    [HttpGet("Product-by-id")]
-    public async Task<ActionResult<ProductDTO>> GetProductById([FromQuery] int id)
+    [HttpGet("Active-products")]
+    public async Task<ActionResult<List<ProductDTO>>> GetActiveProducts()
+    {
+        return await service.GetActiveProducts();
+    }
+
+    [HttpGet("Product-by-id/{id}")]
+    public async Task<ActionResult<ProductDTO>> GetProductById([FromRoute] int id)
     {
         return await service.GetProductById(id);
     }
 
-    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateProduct([FromBody] ProductRequestDTO productRequestDTO)
     {
         return await CreateProduct(productRequestDTO);
     }
 
-    [Authorize]
-    [HttpPut("update-product")]
-    public async Task<IActionResult> UpdateProduct([FromQuery] int id, [FromBody] ProductRequestDTO productRequestDTO)
+    [HttpPut("update-product/{id}")]
+    public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductRequestDTO productRequestDTO)
     {
         await service.UpdateProduct(id, productRequestDTO);
         return NoContent();
     }
 
-    [HttpPost("set-active/{id}/{isActive}")]
-    public async Task<IActionResult> SetProductActive([FromQuery] int userId, [FromQuery] bool isActive)
+    [HttpPut("set-active/{userId}/{isActive}")]
+    public async Task<IActionResult> SetProductActive([FromRoute] int userId, [FromRoute] bool isActive)
     {
         await service.SetProductsActive(userId, isActive);
         return NoContent();
     }
 
-    [Authorize]
-    [HttpDelete]
-    public async Task<IActionResult> DeleteProduct([FromQuery] int id)
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> DeleteProduct([FromRoute] int id)
     {
         await service.DeleteProduct(id);
         return Ok();

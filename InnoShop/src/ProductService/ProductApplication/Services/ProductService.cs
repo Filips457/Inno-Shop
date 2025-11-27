@@ -20,6 +20,12 @@ public class ProductService : IProductService
         return products.Select(p => ConvertProduct(p)).ToList();
     }
 
+    public async Task<List<ProductDTO>> GetActiveProducts()
+    {
+        var products = await repository.GetAllProducts();
+        return products.Where(p => p.IsActive == true).Select(p => ConvertProduct(p)).ToList();
+    }
+
     public async Task<ProductDTO> GetProductById(int id)
     {
         var product = await repository.GetProductById(id);
@@ -76,6 +82,7 @@ public class ProductService : IProductService
             Description = productDTO.Description,
             Price = productDTO.Price,
             CreationTime = DateTime.UtcNow,
+            IsActive = productDTO.IsActive,
             UserId = productDTO.UserId,
         };
     }
@@ -89,6 +96,7 @@ public class ProductService : IProductService
             Description = product.Description,
             Price = product.Price,
             CreationTime = product.CreationTime,
+            IsActive = product.IsActive,
             UserId = product.UserId,
         };
     }

@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using UserApi.Exceptions;
 using UserApplication.DTOs;
@@ -15,10 +16,12 @@ public class UserService : IUserService
 
     private readonly Regex emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
-    public UserService(IUserRepository userRepository, IPasswordHasher hasher, IHttpClientFactory httpClientFactory)
+    public UserService(IUserRepository userRepository, IPasswordHasher hasher, 
+                       IHttpClientFactory httpClientFactory)
     {
         repository = userRepository;
         passwordHasher = hasher;
+
         httpClient = httpClientFactory.CreateClient("UserServiceClient");
     }
 
@@ -96,7 +99,7 @@ public class UserService : IUserService
         if (user == null)
             throw new NotFoundException($"User with id {id} was not found.");
 
-        var res = await httpClient.GetAsync($"set-active/{id}/{active}");
+        var res = await httpClient.PutAsync($"set-active/{id}/{active}", null);
 
         await repository.SetUserActive(id, active);
     }

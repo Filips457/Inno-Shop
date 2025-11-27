@@ -12,6 +12,8 @@ public class ProductRequestDTO
 
     public decimal Price { get; set; }
 
+    public bool IsActive { get; set; }
+
 
     public int UserId { get; set; }
 }

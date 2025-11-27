@@ -16,6 +16,8 @@ public class ProductDTO
     
     public DateTime CreationTime { get; set; }
 
+    public bool IsActive { get; set; }
+
 
     public int UserId { get; set; }
 }

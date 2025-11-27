@@ -30,8 +30,8 @@ public class UserController : ControllerBase
         return Ok(await service.GetActiveUsers());
     }
 
-    [HttpGet("User-by-id")]
-    public async Task<ActionResult<UserDTO>> GetUserById([FromQuery] int id)
+    [HttpGet("User-by-id/{id}")]
+    public async Task<ActionResult<UserDTO>> GetUserById([FromRoute] int id)
     {
         return await service.GetUserById(id);
     }
@@ -43,23 +43,23 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
     }
 
-    [HttpPut("update")]
-    public async Task<IActionResult> UpdateUser([FromQuery] int id, [FromBody] UserRequestDTO userRequestDTO)
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] UserRequestDTO userRequestDTO)
     {
         await service.UpdateUser(id, userRequestDTO);
         return NoContent();
     }
 
     [Authorize(Roles = nameof(Role.Admin))]
-    [HttpPut("set-active")]
-    public async Task<IActionResult> SetUserActive([FromQuery] int id, [FromQuery] bool active)
+    [HttpPut("set-active/{id}/{active}")]
+    public async Task<IActionResult> SetUserActive([FromRoute] int id, [FromRoute] bool active)
     {
         await service.SetUserActive(id, active);
         return NoContent();
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> DeleteUser([FromQuery] int id)
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> DeleteUser([FromRoute] int id)
     {
         await service.DeleteUser(id);
         return NoContent();
