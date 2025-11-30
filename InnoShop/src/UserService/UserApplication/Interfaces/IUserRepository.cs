@@ -6,6 +6,8 @@ public interface IUserRepository
 {
     Task<List<User>> GetAllUsers();
 
+    Task<List<User>> GetActiveUsers();
+
     Task<User?> GetUserById(int id);
 
     Task<User?> GetUserByEmail(string email);

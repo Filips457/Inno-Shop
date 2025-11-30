@@ -22,8 +22,8 @@ public class ProductService : IProductService
 
     public async Task<List<ProductDTO>> GetActiveProducts()
     {
-        var products = await repository.GetAllProducts();
-        return products.Where(p => p.IsActive == true).Select(p => ConvertProduct(p)).ToList();
+        var products = await repository.GetActiveProducts();
+        return products.Select(p => ConvertProduct(p)).ToList();
     }
 
     public async Task<ProductDTO> GetProductById(int id)

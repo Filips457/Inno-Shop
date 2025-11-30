@@ -21,6 +21,12 @@ public class UserRepository : IUserRepository
         return users.Select(u => ConvertUser(u)).ToList();
     }
 
+    public async Task<List<User>> GetActiveUsers()
+    {
+        var users = await userContext.Users.Where(u => u.IsActive == true).ToListAsync();
+        return users.Select(u => ConvertUser(u)).ToList();
+    }
+
     public async Task<User?> GetUserById(int id)
     {
         var user = await userContext.Users.FindAsync(id);

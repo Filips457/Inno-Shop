@@ -33,8 +33,8 @@ public class UserService : IUserService
 
     public async Task<List<UserDTO>> GetActiveUsers()
     {
-        var users = await repository.GetAllUsers();
-        return users.Where(u => u.IsActive == true).Select(u => ConvertUser(u)).ToList();
+        var users = await repository.GetActiveUsers();
+        return users.Select(u => ConvertUser(u)).ToList();
     }
 
     public async Task<UserDTO> GetUserById(int id)

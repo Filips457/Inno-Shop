@@ -21,6 +21,12 @@ public class ProductRepository : IProductRepository
         return products.Select(p => ConvertProduct(p)).ToList();
     }
 
+    public async Task<List<Product>> GetActiveProducts()
+    {
+        var products = await productContext.Products.Where(p => p.IsActive == true).ToListAsync();
+        return products.Select(p => ConvertProduct(p)).ToList();
+    }
+
     public async Task<Product?> GetProductById(int id)
     {
         var product = await productContext.Products.FindAsync(id);
