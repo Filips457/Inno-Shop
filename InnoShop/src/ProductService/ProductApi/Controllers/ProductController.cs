@@ -34,14 +34,12 @@ public class ProductController : ControllerBase
         return await service.GetProductById(id);
     }
 
-    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateProduct([FromBody] ProductRequestDTO productRequestDTO)
     {
         return await CreateProduct(productRequestDTO);
     }
 
-    [Authorize]
     [HttpPut("update-product/{id}")]
     public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductRequestDTO productRequestDTO)
     {
@@ -49,7 +47,6 @@ public class ProductController : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
     [HttpPut("set-active/{userId}/{isActive}")]
     public async Task<IActionResult> SetProductActive([FromRoute] int userId, [FromRoute] bool isActive)
     {
@@ -57,7 +54,6 @@ public class ProductController : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteProduct([FromRoute] int id)
     {
