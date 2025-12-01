@@ -1,8 +1,10 @@
 
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using ProductApi.Exceptions;
 using ProductApplication.Interfaces;
 using ProductApplication.Services;
+using ProductApplication.Validation;
 using ProductInfrastructure.DataSources;
 using ProductInfrastructure.Repositories;
 
@@ -41,6 +43,12 @@ namespace ProductApi
                 throw new InvalidOperationException("Строка подключения не найдена");
 
             builder.Services.AddDbContext<ProductContextMySql>(options => options.UseMySQL(connStr));
+
+            builder.Services.AddControllers().AddFluentValidation(fv =>
+            {
+                fv.RegisterValidatorsFromAssemblyContaining<ProductDtoValidator>();
+                fv.RegisterValidatorsFromAssemblyContaining<ProductRequestDtoValidator>();
+            });
 
 
             var app = builder.Build();

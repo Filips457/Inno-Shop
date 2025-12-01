@@ -13,6 +13,7 @@ public class UserServiceUnitTests
     private readonly Mock<IUserRepository> repoMock;
     private readonly Mock<IPasswordHasher> hasherMock;
     private readonly Mock<IHttpClientFactory> httpFactoryMock;
+    private readonly Mock<IJwtTokenGenerator> tokenMock;
 
     private readonly UserService service;
 
@@ -43,7 +44,9 @@ public class UserServiceUnitTests
             .Setup(f => f.CreateClient(It.IsAny<string>()))
             .Returns(httpClient);
 
-        service = new UserService(repoMock.Object, hasherMock.Object, httpFactoryMock.Object);
+        tokenMock = new Mock<IJwtTokenGenerator>();
+
+        service = new UserService(repoMock.Object, hasherMock.Object, httpFactoryMock.Object, tokenMock.Object);
     }
 
     [Fact]

@@ -13,14 +13,16 @@ public class UserService : IUserService
     private readonly IUserRepository repository;
     private readonly IPasswordHasher passwordHasher;
     private readonly HttpClient httpClient;
+    private readonly IJwtTokenGenerator tokenGenerator;
 
     private readonly Regex emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
     public UserService(IUserRepository userRepository, IPasswordHasher hasher, 
-                       IHttpClientFactory httpClientFactory)
+                       IHttpClientFactory httpClientFactory, IJwtTokenGenerator jwtTokenGenerator)
     {
         repository = userRepository;
         passwordHasher = hasher;
+        tokenGenerator = jwtTokenGenerator;
 
         httpClient = httpClientFactory.CreateClient("UserServiceClient");
     }
@@ -61,6 +63,13 @@ public class UserService : IUserService
             throw new ArgumentException($"Incorrect password!");
 
         return ConvertUser(user);
+    }
+
+    public Task<string> GenerateJwtToken(UserDTO userDTO)
+    {
+        var token = tokenGenerator.GenerateToken(userDTO);
+
+        return Task.FromResult(token);
     }
 
     public async Task<UserDTO> CreateUser(UserRequestDTO userRequestDTO)

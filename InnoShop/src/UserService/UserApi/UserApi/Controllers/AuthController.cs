@@ -9,12 +9,10 @@ namespace UserApi.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IUserService service;
-    private readonly IJwtTokenGenerator tokenGenerator;
 
-    public AuthController(IUserService userService, IJwtTokenGenerator jwtTokenGenerator)
+    public AuthController(IUserService userService)
     {
         service = userService;
-        tokenGenerator = jwtTokenGenerator;
     }
 
     [HttpPost("login")]
@@ -22,7 +20,7 @@ public class AuthController : ControllerBase
     {
         var user = await service.ValidateCredentials(request.Email, request.Password);
 
-        var token = tokenGenerator.GenerateToken(user);
+        var token = await service.GenerateJwtToken(user);
         return Ok(new { Token = token });
     }
 }

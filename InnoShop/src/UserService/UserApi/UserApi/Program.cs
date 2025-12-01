@@ -1,3 +1,4 @@
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -6,6 +7,7 @@ using UserApi.Exceptions;
 using UserApplication.DTOs;
 using UserApplication.Interfaces;
 using UserApplication.Services;
+using UserApplication.Validation;
 using UserInfrastructure.DataSources;
 using UserInfrastructure.Repositories;
 using UserInfrastructure.Security;
@@ -108,6 +110,12 @@ namespace UserApi
                 throw new InvalidOperationException("Строка подключения не найдена");
 
             builder.Services.AddDbContext<UserContextMySql>(options => options.UseMySQL(connStr));
+
+            builder.Services.AddControllers().AddFluentValidation(fv =>
+            {
+                fv.RegisterValidatorsFromAssemblyContaining<UserDtoValidator>();
+                fv.RegisterValidatorsFromAssemblyContaining<UserRequestDtoValidator>();
+            });
 
 
             var app = builder.Build();

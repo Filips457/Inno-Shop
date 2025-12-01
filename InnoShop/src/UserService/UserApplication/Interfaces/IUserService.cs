@@ -12,6 +12,8 @@ public interface IUserService
 
     Task<UserDTO> ValidateCredentials(string email, string password);
 
+    Task<string> GenerateJwtToken(UserDTO userDTO);
+
     Task<UserDTO> CreateUser(UserRequestDTO userRequestDTO);
 
     Task UpdateUser(int id, UserRequestDTO userRequestDTO);
